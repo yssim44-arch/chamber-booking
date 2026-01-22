@@ -87,7 +87,7 @@
         };
 
         const ChamberBookingSystem = () => {
-            const [view, setView] = useState('timeline');
+            const [view, setView] = useState('calendar');
             const [bookings, setBookings] = useState([]);
             const [selectedDate, setSelectedDate] = useState(new Date());
             const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -103,12 +103,6 @@
                 purpose: ''
             });
             const [loading, setLoading] = useState(true);
-            
-            // 드래그 선택 상태
-            const [isDragging, setIsDragging] = useState(false);
-            const [dragStart, setDragStart] = useState(null);
-            const [dragEnd, setDragEnd] = useState(null);
-            const [previewCells, setPreviewCells] = useState([]);
 
             const chambers = Array.from({ length: 10 }, (_, i) => i + 1);
             const timeSlots = Array.from({ length: 24 }, (_, i) => 
@@ -141,6 +135,7 @@
                 }
             };
 
+            // 날짜 범위 내의 모든 날짜를 생성하는 함수
             const getDateRange = (startDate, endDate) => {
                 const dates = [];
                 const current = new Date(startDate);
@@ -154,6 +149,7 @@
                 return dates;
             };
 
+            // 예약 충돌 체크 함수 (날짜 범위 포함)
             const checkConflict = (chamber, startDate, startTime, endDate, endTime) => {
                 const newDates = getDateRange(startDate, endDate);
                 
@@ -161,12 +157,16 @@
                     if (booking.chamber !== chamber) return false;
                     
                     const bookingDates = getDateRange(booking.startDate, booking.endDate);
+                    
+                    // 날짜가 겹치는지 확인
                     const hasDateOverlap = newDates.some(date => bookingDates.includes(date));
                     if (!hasDateOverlap) return false;
                     
+                    // 같은 날짜가 있으면 시간 체크
                     for (const date of newDates) {
                         if (!bookingDates.includes(date)) continue;
                         
+                        // 시작일/종료일에 따라 시간 비교
                         let newStart = startTime;
                         let newEnd = endTime;
                         let bookingStart = booking.startTime;
@@ -190,6 +190,7 @@
                             bookingEnd = '23:59';
                         }
                         
+                        // 시간 겹침 체크
                         if ((newStart >= bookingStart && newStart < bookingEnd) ||
                             (newEnd > bookingStart && newEnd <= bookingEnd) ||
                             (newStart <= bookingStart && newEnd >= bookingEnd)) {
@@ -199,80 +200,6 @@
                     
                     return false;
                 });
-            };
-
-            // 드래그 시작
-            const handleMouseDown = (chamber, time) => {
-                const booking = getBookingForChamberAtTime(chamber, selectedDate, time);
-                if (booking) return; // 이미 예약된 곳은 드래그 불가
-                
-                setIsDragging(true);
-                setDragStart({ chamber, time });
-                setDragEnd({ chamber, time });
-                setPreviewCells([{ chamber, time }]);
-            };
-
-            // 드래그 중
-            const handleMouseEnter = (chamber, time) => {
-                if (!isDragging || !dragStart) return;
-                
-                // 같은 챔버에서만 드래그 가능
-                if (chamber !== dragStart.chamber) return;
-                
-                setDragEnd({ chamber, time });
-                
-                // 미리보기 셀 계산
-                const startIdx = timeSlots.indexOf(dragStart.time);
-                const endIdx = timeSlots.indexOf(time);
-                const minIdx = Math.min(startIdx, endIdx);
-                const maxIdx = Math.max(startIdx, endIdx);
-                
-                const cells = [];
-                for (let i = minIdx; i <= maxIdx; i++) {
-                    const t = timeSlots[i];
-                    const booking = getBookingForChamberAtTime(chamber, selectedDate, t);
-                    if (!booking) {
-                        cells.push({ chamber, time: t });
-                    }
-                }
-                setPreviewCells(cells);
-            };
-
-            // 드래그 종료
-            const handleMouseUp = () => {
-                if (!isDragging || !dragStart || !dragEnd) {
-                    setIsDragging(false);
-                    setDragStart(null);
-                    setDragEnd(null);
-                    setPreviewCells([]);
-                    return;
-                }
-                
-                // 예약 모달 열기
-                const startIdx = timeSlots.indexOf(dragStart.time);
-                const endIdx = timeSlots.indexOf(dragEnd.time);
-                const minIdx = Math.min(startIdx, endIdx);
-                const maxIdx = Math.max(startIdx, endIdx);
-                
-                const startTime = timeSlots[minIdx];
-                const endTime = timeSlots[Math.min(maxIdx + 1, 23)];
-                
-                setNewBooking({
-                    chamber: dragStart.chamber,
-                    startDate: formatDate(selectedDate),
-                    startTime: startTime,
-                    endDate: formatDate(selectedDate),
-                    endTime: endTime,
-                    userName: '',
-                    department: '',
-                    purpose: ''
-                });
-                setShowBookingModal(true);
-                
-                setIsDragging(false);
-                setDragStart(null);
-                setDragEnd(null);
-                setPreviewCells([]);
             };
 
             const handleAddBooking = async () => {
@@ -385,20 +312,16 @@
                 });
             };
 
-            const isCellInPreview = (chamber, time) => {
-                return previewCells.some(cell => cell.chamber === chamber && cell.time === time);
-            };
-
             if (loading) {
                 return <div className="flex items-center justify-center h-screen">로딩중...</div>;
             }
 
             return (
-                <div className="min-h-screen bg-gray-50 p-6" onMouseUp={handleMouseUp}>
+                <div className="min-h-screen bg-gray-50 p-6">
                     <div className="max-w-7xl mx-auto">
                         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
                             <h1 className="text-3xl font-bold text-gray-800 mb-4">챔버 예약 시스템</h1>
-                            <div className="flex gap-4 items-center">
+                            <div className="flex gap-4">
                                 <button
                                     onClick={() => setView('calendar')}
                                     className={`flex items-center gap-2 px-4 py-2 rounded-lg ${
@@ -428,11 +351,6 @@
                                     <Plus size={20} />
                                     예약 추가
                                 </button>
-                                {view === 'timeline' && (
-                                    <div className="text-sm text-gray-600 bg-blue-50 px-4 py-2 rounded-lg">
-                                        💡 시간표에서 드래그하여 바로 예약하세요!
-                                    </div>
-                                )}
                             </div>
                         </div>
 
@@ -511,7 +429,7 @@
                                     />
                                 </div>
 
-                                <div className="overflow-x-auto" style={{ userSelect: 'none' }}>
+                                <div className="overflow-x-auto">
                                     <table className="w-full border-collapse">
                                         <thead>
                                             <tr>
@@ -530,19 +448,12 @@
                                                         <td className="border p-2 font-medium text-sm">{time}</td>
                                                         {chambers.map(chamber => {
                                                             const booking = getBookingForChamberAtTime(chamber, selectedDate, time);
-                                                            const isPreview = isCellInPreview(chamber, time);
                                                             return (
                                                                 <td
                                                                     key={chamber}
-                                                                    className={`border p-2 cursor-pointer transition-colors ${
-                                                                        booking 
-                                                                            ? 'bg-blue-100' 
-                                                                            : isPreview 
-                                                                                ? 'bg-green-200' 
-                                                                                : 'bg-white hover:bg-gray-50'
+                                                                    className={`border p-2 ${
+                                                                        booking ? 'bg-blue-100' : 'bg-white hover:bg-gray-50'
                                                                     }`}
-                                                                    onMouseDown={() => handleMouseDown(chamber, time)}
-                                                                    onMouseEnter={() => handleMouseEnter(chamber, time)}
                                                                 >
                                                                     {booking && (
                                                                         <div className="text-xs">
@@ -691,3 +602,10 @@
                         )}
                     </div>
                 </div>
+            );
+        };
+
+        ReactDOM.render(<ChamberBookingSystem />, document.getElementById('root'));
+    </script>
+</body>
+</html>
