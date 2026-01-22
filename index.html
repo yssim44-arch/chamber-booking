@@ -87,21 +87,28 @@
         };
 
         const ChamberBookingSystem = () => {
-            const [view, setView] = useState('calendar');
+            const [view, setView] = useState('timeline');
             const [bookings, setBookings] = useState([]);
             const [selectedDate, setSelectedDate] = useState(new Date());
             const [currentMonth, setCurrentMonth] = useState(new Date());
             const [showBookingModal, setShowBookingModal] = useState(false);
             const [newBooking, setNewBooking] = useState({
                 chamber: 1,
-                date: '',
+                startDate: '',
                 startTime: '09:00',
-                endTime: '10:00',
+                endDate: '',
+                endTime: '17:00',
                 userName: '',
                 department: '',
                 purpose: ''
             });
             const [loading, setLoading] = useState(true);
+            
+            // 드래그 선택 상태
+            const [isDragging, setIsDragging] = useState(false);
+            const [dragStart, setDragStart] = useState(null);
+            const [dragEnd, setDragEnd] = useState(null);
+            const [previewCells, setPreviewCells] = useState([]);
 
             const chambers = Array.from({ length: 10 }, (_, i) => i + 1);
             const timeSlots = Array.from({ length: 24 }, (_, i) => 
@@ -134,22 +141,166 @@
                 }
             };
 
+            const getDateRange = (startDate, endDate) => {
+                const dates = [];
+                const current = new Date(startDate);
+                const end = new Date(endDate);
+                
+                while (current <= end) {
+                    dates.push(current.toISOString().split('T')[0]);
+                    current.setDate(current.getDate() + 1);
+                }
+                
+                return dates;
+            };
+
+            const checkConflict = (chamber, startDate, startTime, endDate, endTime) => {
+                const newDates = getDateRange(startDate, endDate);
+                
+                return bookings.some(booking => {
+                    if (booking.chamber !== chamber) return false;
+                    
+                    const bookingDates = getDateRange(booking.startDate, booking.endDate);
+                    const hasDateOverlap = newDates.some(date => bookingDates.includes(date));
+                    if (!hasDateOverlap) return false;
+                    
+                    for (const date of newDates) {
+                        if (!bookingDates.includes(date)) continue;
+                        
+                        let newStart = startTime;
+                        let newEnd = endTime;
+                        let bookingStart = booking.startTime;
+                        let bookingEnd = booking.endTime;
+                        
+                        if (date === startDate && date !== endDate) {
+                            newEnd = '23:59';
+                        } else if (date === endDate && date !== startDate) {
+                            newStart = '00:00';
+                        } else if (date !== startDate && date !== endDate) {
+                            newStart = '00:00';
+                            newEnd = '23:59';
+                        }
+                        
+                        if (date === booking.startDate && date !== booking.endDate) {
+                            bookingEnd = '23:59';
+                        } else if (date === booking.endDate && date !== booking.startDate) {
+                            bookingStart = '00:00';
+                        } else if (date !== booking.startDate && date !== booking.endDate) {
+                            bookingStart = '00:00';
+                            bookingEnd = '23:59';
+                        }
+                        
+                        if ((newStart >= bookingStart && newStart < bookingEnd) ||
+                            (newEnd > bookingStart && newEnd <= bookingEnd) ||
+                            (newStart <= bookingStart && newEnd >= bookingEnd)) {
+                            return true;
+                        }
+                    }
+                    
+                    return false;
+                });
+            };
+
+            // 드래그 시작
+            const handleMouseDown = (chamber, time) => {
+                const booking = getBookingForChamberAtTime(chamber, selectedDate, time);
+                if (booking) return; // 이미 예약된 곳은 드래그 불가
+                
+                setIsDragging(true);
+                setDragStart({ chamber, time });
+                setDragEnd({ chamber, time });
+                setPreviewCells([{ chamber, time }]);
+            };
+
+            // 드래그 중
+            const handleMouseEnter = (chamber, time) => {
+                if (!isDragging || !dragStart) return;
+                
+                // 같은 챔버에서만 드래그 가능
+                if (chamber !== dragStart.chamber) return;
+                
+                setDragEnd({ chamber, time });
+                
+                // 미리보기 셀 계산
+                const startIdx = timeSlots.indexOf(dragStart.time);
+                const endIdx = timeSlots.indexOf(time);
+                const minIdx = Math.min(startIdx, endIdx);
+                const maxIdx = Math.max(startIdx, endIdx);
+                
+                const cells = [];
+                for (let i = minIdx; i <= maxIdx; i++) {
+                    const t = timeSlots[i];
+                    const booking = getBookingForChamberAtTime(chamber, selectedDate, t);
+                    if (!booking) {
+                        cells.push({ chamber, time: t });
+                    }
+                }
+                setPreviewCells(cells);
+            };
+
+            // 드래그 종료
+            const handleMouseUp = () => {
+                if (!isDragging || !dragStart || !dragEnd) {
+                    setIsDragging(false);
+                    setDragStart(null);
+                    setDragEnd(null);
+                    setPreviewCells([]);
+                    return;
+                }
+                
+                // 예약 모달 열기
+                const startIdx = timeSlots.indexOf(dragStart.time);
+                const endIdx = timeSlots.indexOf(dragEnd.time);
+                const minIdx = Math.min(startIdx, endIdx);
+                const maxIdx = Math.max(startIdx, endIdx);
+                
+                const startTime = timeSlots[minIdx];
+                const endTime = timeSlots[Math.min(maxIdx + 1, 23)];
+                
+                setNewBooking({
+                    chamber: dragStart.chamber,
+                    startDate: formatDate(selectedDate),
+                    startTime: startTime,
+                    endDate: formatDate(selectedDate),
+                    endTime: endTime,
+                    userName: '',
+                    department: '',
+                    purpose: ''
+                });
+                setShowBookingModal(true);
+                
+                setIsDragging(false);
+                setDragStart(null);
+                setDragEnd(null);
+                setPreviewCells([]);
+            };
+
             const handleAddBooking = async () => {
-                if (!newBooking.userName || !newBooking.date) {
-                    alert('이름과 날짜를 입력해주세요.');
+                if (!newBooking.userName || !newBooking.startDate || !newBooking.endDate) {
+                    alert('이름, 시작 날짜, 종료 날짜를 입력해주세요.');
                     return;
                 }
 
-                const isConflict = bookings.some(booking => 
-                    booking.chamber === newBooking.chamber &&
-                    booking.date === newBooking.date &&
-                    ((newBooking.startTime >= booking.startTime && newBooking.startTime < booking.endTime) ||
-                     (newBooking.endTime > booking.startTime && newBooking.endTime <= booking.endTime) ||
-                     (newBooking.startTime <= booking.startTime && newBooking.endTime >= booking.endTime))
+                if (newBooking.startDate > newBooking.endDate) {
+                    alert('종료 날짜는 시작 날짜보다 이후여야 합니다.');
+                    return;
+                }
+
+                if (newBooking.startDate === newBooking.endDate && newBooking.startTime >= newBooking.endTime) {
+                    alert('당일 예약의 경우 종료 시간은 시작 시간보다 이후여야 합니다.');
+                    return;
+                }
+
+                const isConflict = checkConflict(
+                    newBooking.chamber,
+                    newBooking.startDate,
+                    newBooking.startTime,
+                    newBooking.endDate,
+                    newBooking.endTime
                 );
 
                 if (isConflict) {
-                    alert('해당 시간에 이미 예약이 있습니다.');
+                    alert('해당 기간에 이미 예약이 있습니다.');
                     return;
                 }
 
@@ -163,9 +314,10 @@
                 setShowBookingModal(false);
                 setNewBooking({
                     chamber: 1,
-                    date: '',
+                    startDate: '',
                     startTime: '09:00',
-                    endTime: '10:00',
+                    endDate: '',
+                    endTime: '17:00',
                     userName: '',
                     department: '',
                     purpose: ''
@@ -199,11 +351,42 @@
             const getBookingsForDate = (date) => {
                 if (!date) return [];
                 const dateStr = date.toISOString().split('T')[0];
-                return bookings.filter(b => b.date === dateStr);
+                return bookings.filter(b => {
+                    const dates = getDateRange(b.startDate, b.endDate);
+                    return dates.includes(dateStr);
+                });
             };
 
             const formatDate = (date) => {
                 return date.toISOString().split('T')[0];
+            };
+
+            const getBookingForChamberAtTime = (chamber, date, time) => {
+                const dateStr = formatDate(date);
+                return bookings.find(b => {
+                    if (b.chamber !== chamber) return false;
+                    
+                    const dates = getDateRange(b.startDate, b.endDate);
+                    if (!dates.includes(dateStr)) return false;
+                    
+                    let startTime = b.startTime;
+                    let endTime = b.endTime;
+                    
+                    if (dateStr === b.startDate && dateStr !== b.endDate) {
+                        endTime = '23:59';
+                    } else if (dateStr === b.endDate && dateStr !== b.startDate) {
+                        startTime = '00:00';
+                    } else if (dateStr !== b.startDate && dateStr !== b.endDate) {
+                        startTime = '00:00';
+                        endTime = '23:59';
+                    }
+                    
+                    return time >= startTime && time < endTime;
+                });
+            };
+
+            const isCellInPreview = (chamber, time) => {
+                return previewCells.some(cell => cell.chamber === chamber && cell.time === time);
             };
 
             if (loading) {
@@ -211,11 +394,11 @@
             }
 
             return (
-                <div className="min-h-screen bg-gray-50 p-6">
+                <div className="min-h-screen bg-gray-50 p-6" onMouseUp={handleMouseUp}>
                     <div className="max-w-7xl mx-auto">
                         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
                             <h1 className="text-3xl font-bold text-gray-800 mb-4">챔버 예약 시스템</h1>
-                            <div className="flex gap-4">
+                            <div className="flex gap-4 items-center">
                                 <button
                                     onClick={() => setView('calendar')}
                                     className={`flex items-center gap-2 px-4 py-2 rounded-lg ${
@@ -245,6 +428,11 @@
                                     <Plus size={20} />
                                     예약 추가
                                 </button>
+                                {view === 'timeline' && (
+                                    <div className="text-sm text-gray-600 bg-blue-50 px-4 py-2 rounded-lg">
+                                        💡 시간표에서 드래그하여 바로 예약하세요!
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -291,9 +479,9 @@
                                                                 <div
                                                                     key={booking.id}
                                                                     className="text-xs bg-blue-100 text-blue-800 px-1 py-0.5 rounded truncate"
-                                                                    title={`챔버 ${booking.chamber} - ${booking.userName}`}
+                                                                    title={`챔버 ${booking.chamber} - ${booking.userName} (${booking.startDate} ~ ${booking.endDate})`}
                                                                 >
-                                                                    #{booking.chamber} {booking.startTime}
+                                                                    #{booking.chamber} {booking.userName}
                                                                 </div>
                                                             ))}
                                                             {dayBookings.length > 3 && (
@@ -323,7 +511,7 @@
                                     />
                                 </div>
 
-                                <div className="overflow-x-auto">
+                                <div className="overflow-x-auto" style={{ userSelect: 'none' }}>
                                     <table className="w-full border-collapse">
                                         <thead>
                                             <tr>
@@ -337,29 +525,35 @@
                                         </thead>
                                         <tbody>
                                             {timeSlots.map(time => {
-                                                const dateStr = formatDate(selectedDate);
                                                 return (
                                                     <tr key={time}>
                                                         <td className="border p-2 font-medium text-sm">{time}</td>
                                                         {chambers.map(chamber => {
-                                                            const booking = bookings.find(b => 
-                                                                b.chamber === chamber &&
-                                                                b.date === dateStr &&
-                                                                b.startTime <= time &&
-                                                                b.endTime > time
-                                                            );
+                                                            const booking = getBookingForChamberAtTime(chamber, selectedDate, time);
+                                                            const isPreview = isCellInPreview(chamber, time);
                                                             return (
                                                                 <td
                                                                     key={chamber}
-                                                                    className={`border p-2 ${
-                                                                        booking ? 'bg-blue-100' : 'bg-white hover:bg-gray-50'
+                                                                    className={`border p-2 cursor-pointer transition-colors ${
+                                                                        booking 
+                                                                            ? 'bg-blue-100' 
+                                                                            : isPreview 
+                                                                                ? 'bg-green-200' 
+                                                                                : 'bg-white hover:bg-gray-50'
                                                                     }`}
+                                                                    onMouseDown={() => handleMouseDown(chamber, time)}
+                                                                    onMouseEnter={() => handleMouseEnter(chamber, time)}
                                                                 >
                                                                     {booking && (
                                                                         <div className="text-xs">
                                                                             <div className="font-semibold">{booking.userName}</div>
                                                                             <div className="text-gray-600">{booking.department}</div>
-                                                                            <div className="text-gray-500">{booking.startTime}-{booking.endTime}</div>
+                                                                            <div className="text-gray-500">
+                                                                                {booking.startDate === booking.endDate 
+                                                                                    ? `${booking.startTime}-${booking.endTime}`
+                                                                                    : `${booking.startDate} ~ ${booking.endDate}`
+                                                                                }
+                                                                            </div>
                                                                             <button
                                                                                 onClick={() => handleDeleteBooking(booking.id)}
                                                                                 className="mt-1 text-red-600 hover:text-red-800"
@@ -382,7 +576,7 @@
 
                         {showBookingModal && (
                             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                                <div className="bg-white rounded-lg p-6 w-full max-w-md">
+                                <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-screen overflow-y-auto">
                                     <div className="flex justify-between items-center mb-4">
                                         <h3 className="text-xl font-bold">새 예약</h3>
                                         <button onClick={() => setShowBookingModal(false)}>
@@ -404,34 +598,51 @@
                                             </select>
                                         </div>
 
-                                        <div>
-                                            <label className="block text-sm font-medium mb-1">날짜</label>
-                                            <input
-                                                type="date"
-                                                value={newBooking.date}
-                                                onChange={(e) => setNewBooking({...newBooking, date: e.target.value})}
-                                                className="w-full border rounded px-3 py-2"
-                                            />
+                                        <div className="border-t pt-4">
+                                            <h4 className="font-semibold mb-2">시작</h4>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="block text-sm font-medium mb-1">시작 날짜</label>
+                                                    <input
+                                                        type="date"
+                                                        value={newBooking.startDate}
+                                                        onChange={(e) => setNewBooking({...newBooking, startDate: e.target.value})}
+                                                        className="w-full border rounded px-3 py-2"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium mb-1">시작 시간</label>
+                                                    <input
+                                                        type="time"
+                                                        value={newBooking.startTime}
+                                                        onChange={(e) => setNewBooking({...newBooking, startTime: e.target.value})}
+                                                        className="w-full border rounded px-3 py-2"
+                                                    />
+                                                </div>
+                                            </div>
                                         </div>
 
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div>
-                                                <label className="block text-sm font-medium mb-1">시작 시간</label>
-                                                <input
-                                                    type="time"
-                                                    value={newBooking.startTime}
-                                                    onChange={(e) => setNewBooking({...newBooking, startTime: e.target.value})}
-                                                    className="w-full border rounded px-3 py-2"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium mb-1">종료 시간</label>
-                                                <input
-                                                    type="time"
-                                                    value={newBooking.endTime}
-                                                    onChange={(e) => setNewBooking({...newBooking, endTime: e.target.value})}
-                                                    className="w-full border rounded px-3 py-2"
-                                                />
+                                        <div className="border-t pt-4">
+                                            <h4 className="font-semibold mb-2">종료</h4>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="block text-sm font-medium mb-1">종료 날짜</label>
+                                                    <input
+                                                        type="date"
+                                                        value={newBooking.endDate}
+                                                        onChange={(e) => setNewBooking({...newBooking, endDate: e.target.value})}
+                                                        className="w-full border rounded px-3 py-2"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium mb-1">종료 시간</label>
+                                                    <input
+                                                        type="time"
+                                                        value={newBooking.endTime}
+                                                        onChange={(e) => setNewBooking({...newBooking, endTime: e.target.value})}
+                                                        className="w-full border rounded px-3 py-2"
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
 
@@ -480,10 +691,3 @@
                         )}
                     </div>
                 </div>
-            );
-        };
-
-        ReactDOM.render(<ChamberBookingSystem />, document.getElementById('root'));
-    </script>
-</body>
-</html>
