@@ -94,9 +94,10 @@
             const [showBookingModal, setShowBookingModal] = useState(false);
             const [newBooking, setNewBooking] = useState({
                 chamber: 1,
-                date: '',
+                startDate: '',
                 startTime: '09:00',
-                endTime: '10:00',
+                endDate: '',
+                endTime: '17:00',
                 userName: '',
                 department: '',
                 purpose: ''
@@ -134,22 +135,99 @@
                 }
             };
 
+            // 날짜 범위 내의 모든 날짜를 생성하는 함수
+            const getDateRange = (startDate, endDate) => {
+                const dates = [];
+                const current = new Date(startDate);
+                const end = new Date(endDate);
+                
+                while (current <= end) {
+                    dates.push(current.toISOString().split('T')[0]);
+                    current.setDate(current.getDate() + 1);
+                }
+                
+                return dates;
+            };
+
+            // 예약 충돌 체크 함수 (날짜 범위 포함)
+            const checkConflict = (chamber, startDate, startTime, endDate, endTime) => {
+                const newDates = getDateRange(startDate, endDate);
+                
+                return bookings.some(booking => {
+                    if (booking.chamber !== chamber) return false;
+                    
+                    const bookingDates = getDateRange(booking.startDate, booking.endDate);
+                    
+                    // 날짜가 겹치는지 확인
+                    const hasDateOverlap = newDates.some(date => bookingDates.includes(date));
+                    if (!hasDateOverlap) return false;
+                    
+                    // 같은 날짜가 있으면 시간 체크
+                    for (const date of newDates) {
+                        if (!bookingDates.includes(date)) continue;
+                        
+                        // 시작일/종료일에 따라 시간 비교
+                        let newStart = startTime;
+                        let newEnd = endTime;
+                        let bookingStart = booking.startTime;
+                        let bookingEnd = booking.endTime;
+                        
+                        if (date === startDate && date !== endDate) {
+                            newEnd = '23:59';
+                        } else if (date === endDate && date !== startDate) {
+                            newStart = '00:00';
+                        } else if (date !== startDate && date !== endDate) {
+                            newStart = '00:00';
+                            newEnd = '23:59';
+                        }
+                        
+                        if (date === booking.startDate && date !== booking.endDate) {
+                            bookingEnd = '23:59';
+                        } else if (date === booking.endDate && date !== booking.startDate) {
+                            bookingStart = '00:00';
+                        } else if (date !== booking.startDate && date !== booking.endDate) {
+                            bookingStart = '00:00';
+                            bookingEnd = '23:59';
+                        }
+                        
+                        // 시간 겹침 체크
+                        if ((newStart >= bookingStart && newStart < bookingEnd) ||
+                            (newEnd > bookingStart && newEnd <= bookingEnd) ||
+                            (newStart <= bookingStart && newEnd >= bookingEnd)) {
+                            return true;
+                        }
+                    }
+                    
+                    return false;
+                });
+            };
+
             const handleAddBooking = async () => {
-                if (!newBooking.userName || !newBooking.date) {
-                    alert('이름과 날짜를 입력해주세요.');
+                if (!newBooking.userName || !newBooking.startDate || !newBooking.endDate) {
+                    alert('이름, 시작 날짜, 종료 날짜를 입력해주세요.');
                     return;
                 }
 
-                const isConflict = bookings.some(booking => 
-                    booking.chamber === newBooking.chamber &&
-                    booking.date === newBooking.date &&
-                    ((newBooking.startTime >= booking.startTime && newBooking.startTime < booking.endTime) ||
-                     (newBooking.endTime > booking.startTime && newBooking.endTime <= booking.endTime) ||
-                     (newBooking.startTime <= booking.startTime && newBooking.endTime >= booking.endTime))
+                if (newBooking.startDate > newBooking.endDate) {
+                    alert('종료 날짜는 시작 날짜보다 이후여야 합니다.');
+                    return;
+                }
+
+                if (newBooking.startDate === newBooking.endDate && newBooking.startTime >= newBooking.endTime) {
+                    alert('당일 예약의 경우 종료 시간은 시작 시간보다 이후여야 합니다.');
+                    return;
+                }
+
+                const isConflict = checkConflict(
+                    newBooking.chamber,
+                    newBooking.startDate,
+                    newBooking.startTime,
+                    newBooking.endDate,
+                    newBooking.endTime
                 );
 
                 if (isConflict) {
-                    alert('해당 시간에 이미 예약이 있습니다.');
+                    alert('해당 기간에 이미 예약이 있습니다.');
                     return;
                 }
 
@@ -163,9 +241,10 @@
                 setShowBookingModal(false);
                 setNewBooking({
                     chamber: 1,
-                    date: '',
+                    startDate: '',
                     startTime: '09:00',
-                    endTime: '10:00',
+                    endDate: '',
+                    endTime: '17:00',
                     userName: '',
                     department: '',
                     purpose: ''
@@ -199,11 +278,38 @@
             const getBookingsForDate = (date) => {
                 if (!date) return [];
                 const dateStr = date.toISOString().split('T')[0];
-                return bookings.filter(b => b.date === dateStr);
+                return bookings.filter(b => {
+                    const dates = getDateRange(b.startDate, b.endDate);
+                    return dates.includes(dateStr);
+                });
             };
 
             const formatDate = (date) => {
                 return date.toISOString().split('T')[0];
+            };
+
+            const getBookingForChamberAtTime = (chamber, date, time) => {
+                const dateStr = formatDate(date);
+                return bookings.find(b => {
+                    if (b.chamber !== chamber) return false;
+                    
+                    const dates = getDateRange(b.startDate, b.endDate);
+                    if (!dates.includes(dateStr)) return false;
+                    
+                    let startTime = b.startTime;
+                    let endTime = b.endTime;
+                    
+                    if (dateStr === b.startDate && dateStr !== b.endDate) {
+                        endTime = '23:59';
+                    } else if (dateStr === b.endDate && dateStr !== b.startDate) {
+                        startTime = '00:00';
+                    } else if (dateStr !== b.startDate && dateStr !== b.endDate) {
+                        startTime = '00:00';
+                        endTime = '23:59';
+                    }
+                    
+                    return time >= startTime && time < endTime;
+                });
             };
 
             if (loading) {
@@ -291,9 +397,9 @@
                                                                 <div
                                                                     key={booking.id}
                                                                     className="text-xs bg-blue-100 text-blue-800 px-1 py-0.5 rounded truncate"
-                                                                    title={`챔버 ${booking.chamber} - ${booking.userName}`}
+                                                                    title={`챔버 ${booking.chamber} - ${booking.userName} (${booking.startDate} ~ ${booking.endDate})`}
                                                                 >
-                                                                    #{booking.chamber} {booking.startTime}
+                                                                    #{booking.chamber} {booking.userName}
                                                                 </div>
                                                             ))}
                                                             {dayBookings.length > 3 && (
@@ -337,17 +443,11 @@
                                         </thead>
                                         <tbody>
                                             {timeSlots.map(time => {
-                                                const dateStr = formatDate(selectedDate);
                                                 return (
                                                     <tr key={time}>
                                                         <td className="border p-2 font-medium text-sm">{time}</td>
                                                         {chambers.map(chamber => {
-                                                            const booking = bookings.find(b => 
-                                                                b.chamber === chamber &&
-                                                                b.date === dateStr &&
-                                                                b.startTime <= time &&
-                                                                b.endTime > time
-                                                            );
+                                                            const booking = getBookingForChamberAtTime(chamber, selectedDate, time);
                                                             return (
                                                                 <td
                                                                     key={chamber}
@@ -359,7 +459,12 @@
                                                                         <div className="text-xs">
                                                                             <div className="font-semibold">{booking.userName}</div>
                                                                             <div className="text-gray-600">{booking.department}</div>
-                                                                            <div className="text-gray-500">{booking.startTime}-{booking.endTime}</div>
+                                                                            <div className="text-gray-500">
+                                                                                {booking.startDate === booking.endDate 
+                                                                                    ? `${booking.startTime}-${booking.endTime}`
+                                                                                    : `${booking.startDate} ~ ${booking.endDate}`
+                                                                                }
+                                                                            </div>
                                                                             <button
                                                                                 onClick={() => handleDeleteBooking(booking.id)}
                                                                                 className="mt-1 text-red-600 hover:text-red-800"
@@ -382,7 +487,7 @@
 
                         {showBookingModal && (
                             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                                <div className="bg-white rounded-lg p-6 w-full max-w-md">
+                                <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-screen overflow-y-auto">
                                     <div className="flex justify-between items-center mb-4">
                                         <h3 className="text-xl font-bold">새 예약</h3>
                                         <button onClick={() => setShowBookingModal(false)}>
@@ -404,34 +509,51 @@
                                             </select>
                                         </div>
 
-                                        <div>
-                                            <label className="block text-sm font-medium mb-1">날짜</label>
-                                            <input
-                                                type="date"
-                                                value={newBooking.date}
-                                                onChange={(e) => setNewBooking({...newBooking, date: e.target.value})}
-                                                className="w-full border rounded px-3 py-2"
-                                            />
+                                        <div className="border-t pt-4">
+                                            <h4 className="font-semibold mb-2">시작</h4>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="block text-sm font-medium mb-1">시작 날짜</label>
+                                                    <input
+                                                        type="date"
+                                                        value={newBooking.startDate}
+                                                        onChange={(e) => setNewBooking({...newBooking, startDate: e.target.value})}
+                                                        className="w-full border rounded px-3 py-2"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium mb-1">시작 시간</label>
+                                                    <input
+                                                        type="time"
+                                                        value={newBooking.startTime}
+                                                        onChange={(e) => setNewBooking({...newBooking, startTime: e.target.value})}
+                                                        className="w-full border rounded px-3 py-2"
+                                                    />
+                                                </div>
+                                            </div>
                                         </div>
 
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div>
-                                                <label className="block text-sm font-medium mb-1">시작 시간</label>
-                                                <input
-                                                    type="time"
-                                                    value={newBooking.startTime}
-                                                    onChange={(e) => setNewBooking({...newBooking, startTime: e.target.value})}
-                                                    className="w-full border rounded px-3 py-2"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium mb-1">종료 시간</label>
-                                                <input
-                                                    type="time"
-                                                    value={newBooking.endTime}
-                                                    onChange={(e) => setNewBooking({...newBooking, endTime: e.target.value})}
-                                                    className="w-full border rounded px-3 py-2"
-                                                />
+                                        <div className="border-t pt-4">
+                                            <h4 className="font-semibold mb-2">종료</h4>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="block text-sm font-medium mb-1">종료 날짜</label>
+                                                    <input
+                                                        type="date"
+                                                        value={newBooking.endDate}
+                                                        onChange={(e) => setNewBooking({...newBooking, endDate: e.target.value})}
+                                                        className="w-full border rounded px-3 py-2"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium mb-1">종료 시간</label>
+                                                    <input
+                                                        type="time"
+                                                        value={newBooking.endTime}
+                                                        onChange={(e) => setNewBooking({...newBooking, endTime: e.target.value})}
+                                                        className="w-full border rounded px-3 py-2"
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
 
