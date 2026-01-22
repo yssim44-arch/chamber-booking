@@ -3,60 +3,487 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>테스트 - 잘 보이나요?</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 20px;
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .container {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            text-align: center;
-            max-width: 500px;
-        }
-        h1 {
-            color: #667eea;
-            font-size: 2.5em;
-            margin-bottom: 20px;
-        }
-        p {
-            font-size: 1.2em;
-            color: #333;
-            line-height: 1.6;
-        }
-        .emoji {
-            font-size: 4em;
-            margin: 20px 0;
-        }
-        .status {
-            background: #4CAF50;
-            color: white;
-            padding: 15px 30px;
-            border-radius: 50px;
-            display: inline-block;
-            font-weight: bold;
-            margin-top: 20px;
-        }
-    </style>
+    <title>챔버 예약 시스템</title>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
-    <div class="container">
-        <div class="emoji">👀</div>
-        <h1>보이시나요?</h1>
-        <p>이 페이지가 보인다면<br>Artifact가 정상 작동하는 거예요!</p>
-        <div class="status">✅ 정상 작동 중</div>
-        <p style="margin-top: 30px; font-size: 0.9em; color: #666;">
-            이제 위의 챔버 예약 시스템도<br>똑같이 보일 거예요!
-        </p>
-    </div>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // 아이콘 컴포넌트들
+        const Calendar = ({ size = 24 }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+        );
+
+        const Clock = ({ size = 24 }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+        );
+
+        const X = ({ size = 24 }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        );
+
+        const Plus = ({ size = 24 }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+        );
+
+        const ChevronLeft = ({ size = 24 }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+        );
+
+        const ChevronRight = ({ size = 24 }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+        );
+
+        // 로컬 스토리지 기반 storage API 구현
+        const storage = {
+            get: async (key) => {
+                try {
+                    const value = localStorage.getItem(key);
+                    return value ? { key, value, shared: true } : null;
+                } catch (error) {
+                    throw error;
+                }
+            },
+            set: async (key, value) => {
+                try {
+                    localStorage.setItem(key, value);
+                    return { key, value, shared: true };
+                } catch (error) {
+                    throw error;
+                }
+            },
+            delete: async (key) => {
+                try {
+                    localStorage.removeItem(key);
+                    return { key, deleted: true, shared: true };
+                } catch (error) {
+                    throw error;
+                }
+            }
+        };
+
+        const ChamberBookingSystem = () => {
+            const [view, setView] = useState('calendar');
+            const [bookings, setBookings] = useState([]);
+            const [selectedDate, setSelectedDate] = useState(new Date());
+            const [currentMonth, setCurrentMonth] = useState(new Date());
+            const [showBookingModal, setShowBookingModal] = useState(false);
+            const [newBooking, setNewBooking] = useState({
+                chamber: 1,
+                date: '',
+                startTime: '09:00',
+                endTime: '10:00',
+                userName: '',
+                department: '',
+                purpose: ''
+            });
+            const [loading, setLoading] = useState(true);
+
+            const chambers = Array.from({ length: 10 }, (_, i) => i + 1);
+            const timeSlots = Array.from({ length: 24 }, (_, i) => 
+                `${String(i).padStart(2, '0')}:00`
+            );
+
+            useEffect(() => {
+                loadBookings();
+            }, []);
+
+            const loadBookings = async () => {
+                try {
+                    const result = await storage.get('chamber-bookings');
+                    if (result && result.value) {
+                        setBookings(JSON.parse(result.value));
+                    }
+                } catch (error) {
+                    console.log('데이터 로드 실패 또는 초기 실행');
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            const saveBookings = async (updatedBookings) => {
+                try {
+                    await storage.set('chamber-bookings', JSON.stringify(updatedBookings));
+                    setBookings(updatedBookings);
+                } catch (error) {
+                    alert('저장 실패. 다시 시도해주세요.');
+                }
+            };
+
+            const handleAddBooking = async () => {
+                if (!newBooking.userName || !newBooking.date) {
+                    alert('이름과 날짜를 입력해주세요.');
+                    return;
+                }
+
+                const isConflict = bookings.some(booking => 
+                    booking.chamber === newBooking.chamber &&
+                    booking.date === newBooking.date &&
+                    ((newBooking.startTime >= booking.startTime && newBooking.startTime < booking.endTime) ||
+                     (newBooking.endTime > booking.startTime && newBooking.endTime <= booking.endTime) ||
+                     (newBooking.startTime <= booking.startTime && newBooking.endTime >= booking.endTime))
+                );
+
+                if (isConflict) {
+                    alert('해당 시간에 이미 예약이 있습니다.');
+                    return;
+                }
+
+                const booking = {
+                    id: Date.now(),
+                    ...newBooking,
+                    createdAt: new Date().toISOString()
+                };
+
+                await saveBookings([...bookings, booking]);
+                setShowBookingModal(false);
+                setNewBooking({
+                    chamber: 1,
+                    date: '',
+                    startTime: '09:00',
+                    endTime: '10:00',
+                    userName: '',
+                    department: '',
+                    purpose: ''
+                });
+            };
+
+            const handleDeleteBooking = async (id) => {
+                if (confirm('예약을 취소하시겠습니까?')) {
+                    await saveBookings(bookings.filter(b => b.id !== id));
+                }
+            };
+
+            const getDaysInMonth = (date) => {
+                const year = date.getFullYear();
+                const month = date.getMonth();
+                const firstDay = new Date(year, month, 1);
+                const lastDay = new Date(year, month + 1, 0);
+                const daysInMonth = lastDay.getDate();
+                const startingDayOfWeek = firstDay.getDay();
+
+                const days = [];
+                for (let i = 0; i < startingDayOfWeek; i++) {
+                    days.push(null);
+                }
+                for (let i = 1; i <= daysInMonth; i++) {
+                    days.push(new Date(year, month, i));
+                }
+                return days;
+            };
+
+            const getBookingsForDate = (date) => {
+                if (!date) return [];
+                const dateStr = date.toISOString().split('T')[0];
+                return bookings.filter(b => b.date === dateStr);
+            };
+
+            const formatDate = (date) => {
+                return date.toISOString().split('T')[0];
+            };
+
+            if (loading) {
+                return <div className="flex items-center justify-center h-screen">로딩중...</div>;
+            }
+
+            return (
+                <div className="min-h-screen bg-gray-50 p-6">
+                    <div className="max-w-7xl mx-auto">
+                        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+                            <h1 className="text-3xl font-bold text-gray-800 mb-4">챔버 예약 시스템</h1>
+                            <div className="flex gap-4">
+                                <button
+                                    onClick={() => setView('calendar')}
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-lg ${
+                                        view === 'calendar' 
+                                            ? 'bg-blue-600 text-white' 
+                                            : 'bg-gray-200 text-gray-700'
+                                    }`}
+                                >
+                                    <Calendar size={20} />
+                                    달력 보기
+                                </button>
+                                <button
+                                    onClick={() => setView('timeline')}
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-lg ${
+                                        view === 'timeline' 
+                                            ? 'bg-blue-600 text-white' 
+                                            : 'bg-gray-200 text-gray-700'
+                                    }`}
+                                >
+                                    <Clock size={20} />
+                                    시간표 보기
+                                </button>
+                                <button
+                                    onClick={() => setShowBookingModal(true)}
+                                    className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg ml-auto hover:bg-green-700"
+                                >
+                                    <Plus size={20} />
+                                    예약 추가
+                                </button>
+                            </div>
+                        </div>
+
+                        {view === 'calendar' && (
+                            <div className="bg-white rounded-lg shadow-sm p-6">
+                                <div className="flex items-center justify-between mb-6">
+                                    <button
+                                        onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))}
+                                        className="p-2 hover:bg-gray-100 rounded"
+                                    >
+                                        <ChevronLeft size={24} />
+                                    </button>
+                                    <h2 className="text-2xl font-bold">
+                                        {currentMonth.getFullYear()}년 {currentMonth.getMonth() + 1}월
+                                    </h2>
+                                    <button
+                                        onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))}
+                                        className="p-2 hover:bg-gray-100 rounded"
+                                    >
+                                        <ChevronRight size={24} />
+                                    </button>
+                                </div>
+
+                                <div className="grid grid-cols-7 gap-2">
+                                    {['일', '월', '화', '수', '목', '금', '토'].map(day => (
+                                        <div key={day} className="text-center font-semibold p-2">
+                                            {day}
+                                        </div>
+                                    ))}
+                                    {getDaysInMonth(currentMonth).map((date, idx) => {
+                                        const dayBookings = date ? getBookingsForDate(date) : [];
+                                        return (
+                                            <div
+                                                key={idx}
+                                                className={`min-h-24 border rounded p-2 ${
+                                                    date ? 'bg-white hover:bg-gray-50' : 'bg-gray-50'
+                                                }`}
+                                            >
+                                                {date && (
+                                                    <>
+                                                        <div className="font-semibold mb-1">{date.getDate()}</div>
+                                                        <div className="space-y-1">
+                                                            {dayBookings.slice(0, 3).map(booking => (
+                                                                <div
+                                                                    key={booking.id}
+                                                                    className="text-xs bg-blue-100 text-blue-800 px-1 py-0.5 rounded truncate"
+                                                                    title={`챔버 ${booking.chamber} - ${booking.userName}`}
+                                                                >
+                                                                    #{booking.chamber} {booking.startTime}
+                                                                </div>
+                                                            ))}
+                                                            {dayBookings.length > 3 && (
+                                                                <div className="text-xs text-gray-500">
+                                                                    +{dayBookings.length - 3}개
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
+
+                        {view === 'timeline' && (
+                            <div className="bg-white rounded-lg shadow-sm p-6">
+                                <div className="mb-4">
+                                    <label className="block text-sm font-medium mb-2">날짜 선택</label>
+                                    <input
+                                        type="date"
+                                        value={formatDate(selectedDate)}
+                                        onChange={(e) => setSelectedDate(new Date(e.target.value + 'T00:00:00'))}
+                                        className="border rounded px-3 py-2"
+                                    />
+                                </div>
+
+                                <div className="overflow-x-auto">
+                                    <table className="w-full border-collapse">
+                                        <thead>
+                                            <tr>
+                                                <th className="border p-2 bg-gray-100">시간</th>
+                                                {chambers.map(chamber => (
+                                                    <th key={chamber} className="border p-2 bg-gray-100">
+                                                        챔버 {chamber}
+                                                    </th>
+                                                ))}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {timeSlots.map(time => {
+                                                const dateStr = formatDate(selectedDate);
+                                                return (
+                                                    <tr key={time}>
+                                                        <td className="border p-2 font-medium text-sm">{time}</td>
+                                                        {chambers.map(chamber => {
+                                                            const booking = bookings.find(b => 
+                                                                b.chamber === chamber &&
+                                                                b.date === dateStr &&
+                                                                b.startTime <= time &&
+                                                                b.endTime > time
+                                                            );
+                                                            return (
+                                                                <td
+                                                                    key={chamber}
+                                                                    className={`border p-2 ${
+                                                                        booking ? 'bg-blue-100' : 'bg-white hover:bg-gray-50'
+                                                                    }`}
+                                                                >
+                                                                    {booking && (
+                                                                        <div className="text-xs">
+                                                                            <div className="font-semibold">{booking.userName}</div>
+                                                                            <div className="text-gray-600">{booking.department}</div>
+                                                                            <div className="text-gray-500">{booking.startTime}-{booking.endTime}</div>
+                                                                            <button
+                                                                                onClick={() => handleDeleteBooking(booking.id)}
+                                                                                className="mt-1 text-red-600 hover:text-red-800"
+                                                                            >
+                                                                                <X size={14} />
+                                                                            </button>
+                                                                        </div>
+                                                                    )}
+                                                                </td>
+                                                            );
+                                                        })}
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        )}
+
+                        {showBookingModal && (
+                            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                                <div className="bg-white rounded-lg p-6 w-full max-w-md">
+                                    <div className="flex justify-between items-center mb-4">
+                                        <h3 className="text-xl font-bold">새 예약</h3>
+                                        <button onClick={() => setShowBookingModal(false)}>
+                                            <X size={24} />
+                                        </button>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-medium mb-1">챔버 번호</label>
+                                            <select
+                                                value={newBooking.chamber}
+                                                onChange={(e) => setNewBooking({...newBooking, chamber: Number(e.target.value)})}
+                                                className="w-full border rounded px-3 py-2"
+                                            >
+                                                {chambers.map(c => (
+                                                    <option key={c} value={c}>챔버 {c}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium mb-1">날짜</label>
+                                            <input
+                                                type="date"
+                                                value={newBooking.date}
+                                                onChange={(e) => setNewBooking({...newBooking, date: e.target.value})}
+                                                className="w-full border rounded px-3 py-2"
+                                            />
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-sm font-medium mb-1">시작 시간</label>
+                                                <input
+                                                    type="time"
+                                                    value={newBooking.startTime}
+                                                    onChange={(e) => setNewBooking({...newBooking, startTime: e.target.value})}
+                                                    className="w-full border rounded px-3 py-2"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium mb-1">종료 시간</label>
+                                                <input
+                                                    type="time"
+                                                    value={newBooking.endTime}
+                                                    onChange={(e) => setNewBooking({...newBooking, endTime: e.target.value})}
+                                                    className="w-full border rounded px-3 py-2"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium mb-1">이름</label>
+                                            <input
+                                                type="text"
+                                                value={newBooking.userName}
+                                                onChange={(e) => setNewBooking({...newBooking, userName: e.target.value})}
+                                                className="w-full border rounded px-3 py-2"
+                                                placeholder="홍길동"
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium mb-1">부서</label>
+                                            <input
+                                                type="text"
+                                                value={newBooking.department}
+                                                onChange={(e) => setNewBooking({...newBooking, department: e.target.value})}
+                                                className="w-full border rounded px-3 py-2"
+                                                placeholder="개발팀"
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium mb-1">사용 목적</label>
+                                            <input
+                                                type="text"
+                                                value={newBooking.purpose}
+                                                onChange={(e) => setNewBooking({...newBooking, purpose: e.target.value})}
+                                                className="w-full border rounded px-3 py-2"
+                                                placeholder="제품 테스트"
+                                            />
+                                        </div>
+
+                                        <button
+                                            onClick={handleAddBooking}
+                                            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
+                                        >
+                                            예약하기
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<ChamberBookingSystem />, document.getElementById('root'));
+    </script>
 </body>
 </html>
