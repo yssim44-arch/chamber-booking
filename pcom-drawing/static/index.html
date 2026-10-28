@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#102a37">
+  <title>pCOM · 8비트 도면 작성</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <header class="app-header">
+    <a class="brand" href="/" aria-label="pCOM 도면 작성 홈"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span>pCOM<span class="brand-divider"></span><small>DRAWING STUDIO</small></span></a>
+    <span class="app-edition">8BIT <span>케이블 도면 작성</span></span>
+    <div class="header-actions">
+      <button class="button header-button" id="import-button" type="button"><svg class="toolbar-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 13V3m0 0L6.5 6.5M10 3l3.5 3.5M4 12v4a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> 설정 불러오기</button>
+      <button class="button header-button" id="save-button" type="button" disabled><span aria-hidden="true">↓</span> 설정 저장</button>
+      <button class="button primary" id="export-pptx" type="button" disabled><span class="file-icon" aria-hidden="true">P</span> PPTX 도면 내보내기</button>
+      <button class="button exit-button" id="exit-button" type="button" title="프로그램 종료" aria-label="프로그램 종료">⏻</button>
+    </div>
+  </header>
+  <div class="workspace">
+    <aside class="spec-sidebar" aria-label="도면 사양 입력">
+      <div class="sidebar-intro"><div><p class="eyebrow">CONFIGURATION</p><h1>도면 사양</h1></div><span class="fixed-bit">A8 · 8비트</span></div>
+      <form id="spec-form" novalidate>
+        <section class="form-section preset-section">
+          <label class="field-label" for="preset">기준 도면</label>
+          <select id="preset" name="preset_id" aria-describedby="preset-description"><option>사양을 불러오는 중…</option></select>
+          <p class="field-hint" id="preset-description">기본 사양 또는 기존 도면에서 시작하세요.</p>
+        </section>
+        <section class="form-section">
+          <h2><span class="section-number">01</span> 제품 구성</h2>
+          <div class="field-row">
+            <div class="field"><label for="role">역할 <span>B</span></label><select id="role" name="role"></select></div>
+            <div class="field"><label for="user_serial">USER 통신 <span>D</span></label><select id="user_serial" name="user_serial"></select></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label for="maker">적용 장비사 <span>dd</span></label><select id="maker" name="maker"></select></div>
+            <div class="field"><label for="filter_current">필터 전류 <span>ee</span></label><select id="filter_current" name="filter_current"></select></div>
+          </div>
+          <p class="field-hint"><span class="inline-dot"></span> 기능 0 · I/O + USER Serial + Motion</p>
+        </section>
+        <section class="form-section">
+          <h2><span class="section-number">02</span> 커넥터</h2>
+          <div class="field"><label for="io_connector">I/O 커넥터 <span>f</span></label><select id="io_connector" name="io_connector"></select><p class="field-hint" id="io-hint">8비트 도면에서 확인한 배선 유형을 사용합니다.</p></div>
+          <div class="field"><label for="maint_connector">MAINT <span>g</span></label><select id="maint_connector" name="maint_connector"></select></div>
+          <div class="field"><label for="user_connector">USER <span>h</span></label><select id="user_connector" name="user_connector"></select></div>
+          <div class="power-fields">
+            <span class="small-caption">전원 커넥터 · 코드 순서 BOARD → BELT</span>
+            <div class="field"><label for="board_connector">BOARD 방향 <span>i</span></label><select id="board_connector" name="board_connector"></select></div>
+            <div class="field"><label for="belt_connector">BELT 방향 <span>j</span></label><select id="belt_connector" name="belt_connector"></select></div><div class="field"><label for="board_pin_order">BOARD 전원 핀 순서</label><select id="board_pin_order" name="board_pin_order"></select></div>
+          </div>
+        </section>
+        <section class="form-section">
+          <h2><span class="section-number">03</span> 케이블 길이 <small>mm</small></h2>
+          <div class="field-row">
+            <div class="field"><label for="length-io">I/O <span>kkk</span></label><div class="number-wrap"><input id="length-io" name="lengths.io" type="number" min="200" max="9990" step="10" inputmode="numeric"><span>mm</span></div></div>
+            <div class="field"><label for="length-maint">MAINT <span>lll</span></label><div class="number-wrap"><input id="length-maint" name="lengths.maint" type="number" min="100" max="9990" step="10" inputmode="numeric"><span>mm</span></div></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label for="length-user">USER <span>mmm</span></label><div class="number-wrap"><input id="length-user" name="lengths.user" type="number" min="0" max="9990" step="10" inputmode="numeric"><span>mm</span></div></div>
+            <div class="field"><label for="length-plc">PLC <span>nnn</span></label><div class="number-wrap"><input id="length-plc" name="lengths.plc" type="number" min="100" max="9990" step="10" inputmode="numeric"><span>mm</span></div></div>
+          </div>
+          <p class="field-hint">10mm 단위 · USER 0mm는 케이블 없음<br>커넥터 없음과 케이블 없음은 별도 사양입니다.</p><div class="aux-lengths"><span class="small-caption">필터 양쪽 구간 · 도면번호 길이와 별도</span><div class="field-row"><div class="field"><label for="length-belt">BELT 측</label><div class="number-wrap"><input id="length-belt" name="lengths.belt" type="number" min="0" max="9990" step="10" inputmode="numeric"><span>mm</span></div></div><div class="field"><label for="length-board">BOARD 측</label><div class="number-wrap"><input id="length-board" name="lengths.board" type="number" min="0" max="9990" step="10" inputmode="numeric"><span>mm</span></div></div></div></div>
+        </section>
+        <section class="form-section drawing-info">
+          <h2><span class="section-number">04</span> 도면 정보</h2>
+          <div class="field-row"><div class="field"><label for="revision">개정</label><input id="revision" name="revision" type="text" maxlength="30" placeholder="V1.0"></div><div class="field"><label for="date">작성일</label><input id="date" name="date" type="date"></div></div>
+          <div class="field"><label for="notes">도면 비고 <span>선택</span></label><textarea id="notes" name="notes" rows="3" maxlength="1000" placeholder="도면에 표시할 비고를 입력하세요."></textarea></div>
+        </section>
+      </form>
+      <div class="sidebar-footer"><span id="saved-status">현재 사양을 이 기기에 저장합니다.</span><button id="reset-button" type="button">초기화</button></div>
+    </aside>
+    <main class="drawing-workspace">
+      <section class="drawing-heading">
+        <div><p class="eyebrow">CABLE ASSEMBLY · 8BIT</p><h2 id="drawing-title">pCOM 케이블 도면</h2><p id="profile-label">사양을 준비하고 있습니다.</p></div>
+        <div class="readiness" id="readiness" aria-live="polite"><span></span><b>불러오는 중</b></div>
+      </section>
+      <section class="code-card" aria-label="생성된 도면번호">
+        <div class="code-label">DRAWING NO.<span>사양 변경 시 자동 생성</span></div>
+        <div class="code-line"><code id="drawing-code">CTS-pCOM-A8-…</code><button class="icon-button" id="copy-code" type="button" title="도면번호 복사" aria-label="도면번호 복사" disabled><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="7" y="6" width="10" height="11" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M13 6V4a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h2" stroke="currentColor" stroke-width="1.5"/></svg></button></div>
+        <details class="decode-details"><summary>기존 도면번호로 사양 불러오기</summary><div class="decode-row"><input id="decode-input" type="text" aria-label="불러올 도면번호" spellcheck="false" placeholder="CTS-pCOM-A8-M-02-SE-03-222-11-040-010-030-030"><button id="decode-button" class="button secondary" type="button">적용</button></div><p id="decode-error" class="field-error" role="alert"></p></details>
+      </section>
+      <div id="form-errors" class="error-banner" role="alert" hidden></div>
+      <section class="document-panel">
+        <div class="document-toolbar"><div class="tabs" role="tablist" aria-label="도면 보기"><button type="button" id="tab-preview" role="tab" aria-selected="true" aria-controls="panel-preview" class="tab active" data-tab="preview">도면 미리보기</button><button type="button" id="tab-pins" role="tab" aria-selected="false" aria-controls="panel-pins" class="tab" data-tab="pins">핀 배선 <span id="pins-count">0</span></button><button type="button" id="tab-bom" role="tab" aria-selected="false" aria-controls="panel-bom" class="tab" data-tab="bom">부품표 <span id="bom-count">0</span></button></div><div class="preview-tools"><button class="button subtle" id="export-svg" type="button" disabled>SVG 저장 <span aria-hidden="true">↗</span></button></div></div>
+        <div id="panel-preview" role="tabpanel" aria-labelledby="tab-preview" class="tab-panel preview-panel"><div id="svg-container" class="drawing-paper"><div class="empty-state"><div class="loading-ring"></div><p>도면을 생성하고 있습니다.</p></div></div><div class="preview-caption"><span><i></i> 사양 기반 연결 도면</span><span>실제 길이 비율과 무관 · PPTX에서 도형·텍스트 편집 가능</span></div></div>
+        <div id="panel-pins" role="tabpanel" aria-labelledby="tab-pins" class="tab-panel table-panel" hidden><div class="table-intro"><h3>핀 배선표</h3><p>본체 핀과 선택한 외부 커넥터의 연결을 확인하세요.</p></div><div class="table-scroll"><table><thead><tr><th>본체 / 기능</th><th>핀</th><th>신호</th><th>선색</th><th>연결 대상</th></tr></thead><tbody id="pins-body"></tbody></table></div></div>
+        <div id="panel-bom" role="tabpanel" aria-labelledby="tab-bom" class="tab-panel table-panel" hidden><div class="table-intro"><h3>구성 부품표</h3><p>현재 선택한 최종 커넥터 구성을 기준으로 생성합니다.</p></div><div class="table-scroll"><table><thead><tr><th>No.</th><th>구분</th><th>품번 / 사양</th><th>제조사</th><th class="numeric">수량</th><th>비고</th></tr></thead><tbody id="bom-body"></tbody></table></div></div>
+      </section>
+      <section class="summary-strip" id="summary-strip" aria-label="현재 사양 요약"></section>
+      <section class="review-section" id="review-section" hidden><div class="review-heading"><span class="review-icon">!</span><h3>검토 항목</h3><span id="review-count"></span></div><ul id="warning-list"></ul></section>
+      <section class="source-section" id="source-section" hidden><div class="source-icon" aria-hidden="true">↳</div><div><h3>기준 자료</h3><p id="source-name"></p><code id="source-code"></code><ul id="source-notes"></ul></div></section>
+      <footer class="workspace-footer"><span>pCOM Drawing Studio <span>·</span> 8BIT</span><span>기본 사양 + 기존 도면 비교 데이터</span></footer>
+    </main>
+  </div>
+  <input id="import-file" type="file" accept="application/json,.json" hidden>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <div id="boot-error" class="fatal-error" hidden><h2>프로그램을 시작하지 못했습니다.</h2><p id="boot-error-text"></p><button class="button primary" type="button" id="reload-button">다시 불러오기</button></div>
+</body>
+</html>

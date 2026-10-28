@@ -1,0 +1,16 @@
+{
+  "version": "1.0.0",
+  "target": "Windows 10/11 x64 GUI",
+  "exe_sha256": "a974a9192943f585f8eb1ce27a76c33ec9b4fc5509251970dcdc650f10292f77",
+  "presets": 19,
+  "validated": [
+    "Go tests",
+    "go vet",
+    "Chromium flows",
+    "19 preset PPTX structure",
+    "LibreOffice render"
+  ],
+  "not_run": [
+    "Native Windows GUI execution"
+  ]
+}

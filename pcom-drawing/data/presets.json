@@ -1,0 +1,811 @@
+[
+  {
+    "id": "spec-example",
+    "label": "기본 사양 예시 · MASTER · RS-232",
+    "config": {
+      "bit_code": "A8",
+      "role": "M",
+      "function_code": "0",
+      "user_serial": "2",
+      "maker": "SE",
+      "filter_current": "03",
+      "io_connector": "2",
+      "maint_connector": "2",
+      "user_connector": "2",
+      "board_connector": "1",
+      "belt_connector": "1",
+      "lengths": {
+        "io": 400,
+        "maint": 100,
+        "user": 300,
+        "plc": 300,
+        "belt": 110,
+        "board": 110
+      },
+      "revision": "V1.0",
+      "date": "2026-10-28",
+      "notes": "",
+      "preset_id": "spec-example",
+      "board_pin_order": "24v-gnd"
+    },
+    "notes": [
+      "「도면 사양 발췌.docx」의 제품 코드 예시입니다.",
+      "SE=SEMES의 일반 예시이며 SEMES P8.0 TRAY OHT 특주 도면과는 핀 배치·부품 사양이 다릅니다."
+    ]
+  },
+  {
+    "id": "d01-s1",
+    "label": "GE · MASTER · V1.0",
+    "config": {
+      "bit_code": "A8",
+      "role": "M",
+      "function_code": "0",
+      "user_serial": "2",
+      "maker": "GE",
+      "filter_current": "03",
+      "io_connector": "0",
+      "maint_connector": "3",
+      "user_connector": "4",
+      "board_connector": "1",
+      "belt_connector": "1",
+      "lengths": {
+        "io": 1000,
+        "maint": 1000,
+        "user": 1000,
+        "plc": 300,
+        "belt": 110,
+        "board": 110
+      },
+      "revision": "V1.0",
+      "date": "2023-05-22",
+      "notes": "",
+      "preset_id": "d01-s1",
+      "board_pin_order": "24v-gnd"
+    },
+    "source": {
+      "filename": "01. pCOM-8BIT-GE_250522_1.pptx",
+      "slide": 1,
+      "drawing_number": "CTS-pCOM-A8-M-02-GE-03-034-11-100-100-100-030",
+      "revision": "V1.0"
+    },
+    "notes": [
+      "VHL Maker 코드 GE는 이번 기본 사양 코드표에 없으나 원본 도면에 사용된 기존 사례입니다.",
+      "900mm를 초과하는 길이는 기본 사양의 일반 범위를 벗어나지만 이 원본 도면에 기재된 길이입니다.",
+      "I/O 커넥터는 제거 표시 대상이며 MAINT·USER D-SUB 및 전원 양끝은 유지됩니다.",
+      "코드 0은 최종 커넥터 없음입니다. 길이가 있는 선재와 제거 전 조립·검사용 커넥터는 BOM/그림에 나타날 수 있으며 케이블 없음과 구분합니다.",
+      "파일명은 250522이지만 내부 Rev 날짜는 23.05.22입니다. 여기서는 내부 Rev 날짜를 보존했습니다."
+    ]
+  },
+  {
+    "id": "d01-s2",
+    "label": "GE · SLAVE · V1.0",
+    "config": {
+      "bit_code": "A8",
+      "role": "S",
+      "function_code": "0",
+      "user_serial": "2",
+      "maker": "GE",
+      "filter_current": "03",
+      "io_connector": "0",
+      "maint_connector": "3",
+      "user_connector": "0",
+      "board_connector": "1",
+      "belt_connector": "1",
+      "lengths": {
+        "io": 1000,
+        "maint": 100,
+        "user": 100,
+        "plc": 300,
+        "belt": 110,
+        "board": 110
+      },
+      "revision": "V1.0",
+      "date": "2023-05-22",
+      "notes": "",
+      "preset_id": "d01-s2",
+      "board_pin_order": "24v-gnd"
+    },
+    "source": {
+      "filename": "01. pCOM-8BIT-GE_250522_1.pptx",
+      "slide": 2,
+      "drawing_number": "CTS-pCOM-A8-S-02-GE-03-030-11-100-010-010-030",
+      "revision": "V1.0"
+    },
+    "notes": [
+      "VHL Maker 코드 GE는 이번 기본 사양 코드표에 없으나 원본 도면에 사용된 기존 사례입니다.",
+      "900mm를 초과하는 길이는 기본 사양의 일반 범위를 벗어나지만 이 원본 도면에 기재된 길이입니다.",
+      "I/O·USER 커넥터는 제거 표시 대상이며 MAINT D-SUB 및 전원 양끝은 유지됩니다.",
+      "코드 0은 최종 커넥터 없음입니다. 길이가 있는 선재와 제거 전 조립·검사용 커넥터는 BOM/그림에 나타날 수 있으며 케이블 없음과 구분합니다.",
+      "파일명은 250522이지만 내부 Rev 날짜는 23.05.22입니다. 여기서는 내부 Rev 날짜를 보존했습니다.",
+      "원본 본문은 SLAVE이나 BOM 열수축튜브 #15는 Marking:MASTER로 표기되어 있습니다."
+    ]
+  },
+  {
+    "id": "d02-s1",
+    "label": "MeetFuture MF · MASTER · V1.0",
+    "config": {
+      "bit_code": "A8",
+      "role": "M",
+      "function_code": "0",
+      "user_serial": "2",
+      "maker": "MF",
+      "filter_current": "06",
+      "io_connector": "0",
+      "maint_connector": "0",
+      "user_connector": "0",
+      "board_connector": "0",
+      "belt_connector": "0",
+      "lengths": {
+        "io": 500,
+        "maint": 500,
+        "user": 500,
+        "plc": 500,
+        "belt": 110,
+        "board": 110
+      },
+      "revision": "V1.0",
+      "date": "2023-03-27",
+      "notes": "",
+      "preset_id": "d02-s1",
+      "board_pin_order": "24v-gnd"
+    },
+    "source": {
+      "filename": "01. pCOM-8BIT-MF_230327.pptx",
+      "slide": 1,
+      "drawing_number": "CTS-pCOM-A8-M-02-MF-06-000-00-050-050-050-050",
+      "revision": "V1.0"
+    },
+    "notes": [
+      "VHL Maker 코드 MF는 이번 기본 사양 코드표에 없으나 원본 도면에 사용된 기존 사례입니다.",
+      "I/O·MAINT·USER·BELT·BOARD 외부 커넥터는 모두 제거 표시 대상입니다.",
+      "코드 0은 최종 커넥터 없음입니다. 길이가 있는 선재와 제거 전 조립·검사용 커넥터는 BOM/그림에 나타날 수 있으며 케이블 없음과 구분합니다."
+    ]
+  },
+  {
+    "id": "d02-s2",
+    "label": "MeetFuture MF · SLAVE · V1.0",
+    "config": {
+      "bit_code": "A8",
+      "role": "S",
+      "function_code": "0",
+      "user_serial": "2",
+      "maker": "MF",
+      "filter_current": "06",
+      "io_connector": "1",
+      "maint_connector": "2",
+      "user_connector": "1",
+      "board_connector": "1",
+      "belt_connector": "0",
+      "lengths": {
+        "io": 200,
+        "maint": 200,
+        "user": 200,
+        "plc": 200,
+        "belt": 110,
+        "board": 110
+      },
+      "revision": "V1.0",
+      "date": "2023-03-27",
+      "notes": "",
+      "preset_id": "d02-s2",
+      "board_pin_order": "24v-gnd"
+    },
+    "source": {
+      "filename": "01. pCOM-8BIT-MF_230327.pptx",
+      "slide": 2,
+      "drawing_number": "CTS-pCOM-A8-S-02-MF-06-121-10-020-020-020-020",
+      "revision": "V1.0"
+    },
+    "notes": [
+      "VHL Maker 코드 MF는 이번 기본 사양 코드표에 없으나 원본 도면에 사용된 기존 사례입니다.",
+      "BELT 커넥터는 제거 표시 대상입니다. BOARD·MAINT·USER·주 26핀은 남습니다.",
+      "코드 0은 최종 커넥터 없음입니다. 길이가 있는 선재와 제거 전 조립·검사용 커넥터는 BOM/그림에 나타날 수 있으며 케이블 없음과 구분합니다.",
+      "USER 코드 1은 기본 사양에서 51103-0310이지만 원본 BOM에는 51103-0300으로 적혀 있습니다. 품번을 자동으로 동일시하지 않습니다.",
+      "원본 ⑤ 5핀의 GND/RX2/TX2는 NC로 표기되면서 USER 상대 핀 숫자도 있습니다. NC와 상대 핀 표시를 각각 보존하고 실제 결선 기준을 확인해야 합니다."
+    ]
+  },
+  {
+    "id": "d03-s1",
+    "label": "SYNUS TECH · MASTER · V1.0",
+    "config": {
+      "bit_code": "A8",
+      "role": "M",
+      "function_code": "0",
+      "user_serial": "2",
+      "maker": "SF",
+      "filter_current": "03",
+      "io_connector": "2",
+      "maint_connector": "2",
+      "user_connector": "2",
+      "board_connector": "1",
+      "belt_connector": "1",
+      "lengths": {
+        "io": 250,
+        "maint": 200,
+        "user": 300,
+        "plc": 200,
+        "belt": 110,
+        "board": 110
+      },
+      "revision": "V1.0",
+      "date": "2024-03-06",
+      "notes": "",
+      "preset_id": "d03-s1",
+      "board_pin_order": "24v-gnd"
+    },
+    "source": {
+      "filename": "12. pCOM-8BIT-SYNUS TECH_240306.pptx",
+      "slide": 1,
+      "drawing_number": "CTS-pCOM-08-M-02-SF-03-222-11-025-020-030-020",
+      "revision": "V1.0"
+    },
+    "notes": [
+      "원본은 8비트 코드 08을 사용합니다. 프로그램 입력은 A8로 표시하며 원본 도면번호는 별도로 보존합니다.",
+      "2095 26AWG 2C 수량 0 항목은 3C 선재 활용 주석과 함께 읽어야 하며 PLC 배선이 없다는 뜻은 아닙니다."
+    ]
+  },
+  {
+    "id": "d03-s2",
+    "label": "SYNUS TECH · SLAVE · V1.0",
+    "config": {
+      "bit_code": "A8",
+      "role": "S",
+      "function_code": "0",
+      "user_serial": "2",
+      "maker": "SF",
+      "filter_current": "03",
+      "io_connector": "F",
+      "maint_connector": "2",
+      "user_connector": "7",
+      "board_connector": "4",
+      "belt_connector": "1",
+      "lengths": {
+        "io": 410,
+        "maint": 400,
+        "user": 450,
+        "plc": 300,
+        "belt": 110,
+        "board": 110
+      },
+      "revision": "V1.0",
+      "date": "2024-03-06",
+      "notes": "",
+      "preset_id": "d03-s2",
+      "board_pin_order": "gnd-24v"
+    },
+    "source": {
+      "filename": "12. pCOM-8BIT-SYNUS TECH_240306.pptx",
+      "slide": 2,
+      "drawing_number": "CTS-pCOM-08-S-02-SF-03-F27-41-041-040-045-030",
+      "revision": "V1.0"
+    },
+    "notes": [
+      "원본은 8비트 코드 08을 사용합니다. 프로그램 입력은 A8로 표시하며 원본 도면번호는 별도로 보존합니다.",
+      "원본 ⑤ 5핀의 GND/RX2/TX2는 NC로 표기되면서 USER 상대 핀 숫자도 있습니다. NC와 상대 핀 표시를 각각 보존하고 실제 결선 기준을 확인해야 합니다.",
+      "SYNUS SLAVE: 그림·코드 F27-41은 I/O 501646-2600, USER 51163-0300, BOARD 51067-0200을 뜻하지만 BOM에는 HIF6-26D-1.27R·51103-0300·5557-02가 남아 있습니다.",
+      "BOARD 전원 핀은 1=GND(검), 2=24V(흰)입니다. 일반 1=24V/2=GND 규칙으로 바꾸지 않습니다.",
+      "2095 26AWG 2C 수량 0 항목은 3C 선재 활용 주석과 함께 읽어야 하며 PLC 배선이 없다는 뜻은 아닙니다."
+    ]
+  },
+  {
+    "id": "d04-s1",
+    "label": "SEMES P8.0 TRAY OHT · MASTER · V1.0",
+    "config": {
+      "bit_code": "A8",
+      "role": "M",
+      "function_code": "0",
+      "user_serial": "2",
+      "maker": "SE",
+      "filter_current": "06",
+      "io_connector": "L",
+      "maint_connector": "2",
+      "user_connector": "2",
+      "board_connector": "5",
+      "belt_connector": "4",
+      "lengths": {
+        "io": 250,
+        "maint": 250,
+        "user": 250,
+        "plc": 250,
+        "belt": 550,
+        "board": 630
+      },
+      "revision": "V1.0",
+      "date": "2026-06-23",
+      "notes": "",
+      "preset_id": "d04-s1",
+      "board_pin_order": "24v-gnd",
+      "connector_colors": {
+        "io_in": "black",
+        "maint": "black",
+        "belt": "black",
+        "board": "black"
+      }
+    },
+    "source": {
+      "filename": "13. pCOM-8BIT-SEMES_P8.0 TRAY OHT_260623.pptx",
+      "slide": 1,
+      "drawing_number": "CTS-pCOM-08-M-02-SE-06-L22-54-025-025-025-025",
+      "revision": "V1.0"
+    },
+    "notes": [
+      "원본은 8비트 코드 08을 사용합니다. 프로그램 입력은 A8로 표시하며 원본 도면번호는 별도로 보존합니다.",
+      "I/O 코드 L은 SMR12×2 B Type입니다. SELECT/MODE/ES/TRIGGER 핀 배치와 GND 분기가 일반 A Type과 다릅니다.",
+      "MAINT 및 I/O 한쪽은 Black(-B) 사양이고 전원 양끝도 Black입니다. 라벨은 Hoist PIO1/Hoist PIO2입니다.",
+      "필터 BELT/BOARD 쪽 보조 치수는 550/630mm이며 길이표의 네 구간과 별도입니다."
+    ]
+  },
+  {
+    "id": "d04-s2",
+    "label": "SEMES P8.0 TRAY OHT · SLAVE · V1.0",
+    "config": {
+      "bit_code": "A8",
+      "role": "S",
+      "function_code": "0",
+      "user_serial": "2",
+      "maker": "SE",
+      "filter_current": "06",
+      "io_connector": "1",
+      "maint_connector": "2",
+      "user_connector": "1",
+      "board_connector": "6",
+      "belt_connector": "5",
+      "lengths": {
+        "io": 300,
+        "maint": 350,
+        "user": 350,
+        "plc": 330,
+        "belt": 320,
+        "board": 480
+      },
+      "revision": "V1.0",
+      "date": "2026-06-23",
+      "notes": "",
+      "preset_id": "d04-s2",
+      "board_pin_order": "24v-gnd",
+      "connector_colors": {
+        "maint": "black"
+      }
+    },
+    "source": {
+      "filename": "13. pCOM-8BIT-SEMES_P8.0 TRAY OHT_260623.pptx",
+      "slide": 2,
+      "drawing_number": "CTS-pCOM-08-S-02-SE-06-121-65-030-035-035-033",
+      "revision": "V1.0"
+    },
+    "notes": [
+      "원본은 8비트 코드 08을 사용합니다. 프로그램 입력은 A8로 표시하며 원본 도면번호는 별도로 보존합니다.",
+      "USER 코드 1은 기본 사양에서 51103-0310이지만 원본 BOM에는 51103-0300으로 적혀 있습니다. 품번을 자동으로 동일시하지 않습니다.",
+      "원본 ⑤ 5핀의 GND/RX2/TX2는 NC로 표기되면서 USER 상대 핀 숫자도 있습니다. NC와 상대 핀 표시를 각각 보존하고 실제 결선 기준을 확인해야 합니다.",
+      "MAINT는 검정 SMR-3V-B이며 BELT/BOARD는 4핀 5559-04/5557-04입니다. 핀표에는 1·2핀만 정의되어 있습니다.",
+      "필터 BELT/BOARD 쪽 보조 치수는 320/480mm이며 길이표의 네 구간과 별도입니다."
+    ]
+  },
+  {
+    "id": "d05-s1",
+    "label": "SYNUS TECH 길이 변형 · SLAVE · V1.0",
+    "config": {
+      "bit_code": "A8",
+      "role": "S",
+      "function_code": "0",
+      "user_serial": "2",
+      "maker": "SF",
+      "filter_current": "03",
+      "io_connector": "F",
+      "maint_connector": "2",
+      "user_connector": "7",
+      "board_connector": "4",
+      "belt_connector": "1",
+      "lengths": {
+        "io": 540,
+        "maint": 540,
+        "user": 540,
+        "plc": 240,
+        "belt": 110,
+        "board": 110
+      },
+      "revision": "V1.0",
+      "date": "2024-03-06",
+      "notes": "",
+      "preset_id": "d05-s1",
+      "board_pin_order": "gnd-24v"
+    },
+    "source": {
+      "filename": "CTS-pCOM-08-S-02-SF-03-F27-41-054-054-054-024.pptx",
+      "slide": 1,
+      "drawing_number": "CTS-pCOM-08-S-02-SF-03-F27-41-054-054-054-024",
+      "revision": "V1.0"
+    },
+    "notes": [
+      "원본은 8비트 코드 08을 사용합니다. 프로그램 입력은 A8로 표시하며 원본 도면번호는 별도로 보존합니다.",
+      "원본 ⑤ 5핀의 GND/RX2/TX2는 NC로 표기되면서 USER 상대 핀 숫자도 있습니다. NC와 상대 핀 표시를 각각 보존하고 실제 결선 기준을 확인해야 합니다.",
+      "SYNUS SLAVE: 그림·코드 F27-41은 I/O 501646-2600, USER 51163-0300, BOARD 51067-0200을 뜻하지만 BOM에는 HIF6-26D-1.27R·51103-0300·5557-02가 남아 있습니다.",
+      "BOARD 전원 핀은 1=GND(검), 2=24V(흰)입니다. 일반 1=24V/2=GND 규칙으로 바꾸지 않습니다.",
+      "2095 26AWG 2C 수량 0 항목은 3C 선재 활용 주석과 함께 읽어야 하며 PLC 배선이 없다는 뜻은 아닙니다."
+    ]
+  },
+  {
+    "id": "d06-s1",
+    "label": "썬텍 SF 최초 첨부 · MASTER · V1.0",
+    "config": {
+      "bit_code": "A8",
+      "role": "M",
+      "function_code": "0",
+      "user_serial": "2",
+      "maker": "SF",
+      "filter_current": "03",
+      "io_connector": "0",
+      "maint_connector": "0",
+      "user_connector": "0",
+      "board_connector": "1",
+      "belt_connector": "1",
+      "lengths": {
+        "io": 2000,
+        "maint": 3000,
+        "user": 2000,
+        "plc": 200,
+        "belt": 110,
+        "board": 110
+      },
+      "revision": "V1.0",
+      "date": "2026-09-02",
+      "notes": "",
+      "preset_id": "d06-s1",
+      "board_pin_order": "24v-gnd"
+    },
+    "source": {
+      "filename": "CTS-pCOM-A8-M-02-SF-03-000-11-200-300-200-020.pptx",
+      "slide": 1,
+      "drawing_number": "CTS-pCOM-A8-M-02-SF-03-000-11-200-300-200-020",
+      "revision": "V1.0"
+    },
+    "notes": [
+      "900mm를 초과하는 길이는 기본 사양의 일반 범위를 벗어나지만 이 원본 도면에 기재된 길이입니다.",
+      "I/O·MAINT·USER 커넥터는 제거 표시 대상이며 BELT·BOARD 전원 커넥터는 남습니다.",
+      "코드 0은 최종 커넥터 없음입니다. 길이가 있는 선재와 제거 전 조립·검사용 커넥터는 BOM/그림에 나타날 수 있으며 케이블 없음과 구분합니다.",
+      "코드 SF는 기본 사양의 VHL Maker SynusTech이며 썬텍 제작사 표제와 구분합니다.",
+      "원본 BOARD 선재·일부 스토퍼의 그림 참조번호와 BOM 번호에 불일치가 있어 확인이 필요합니다."
+    ]
+  },
+  {
+    "id": "su-b-s1",
+    "label": "썬텍 SU · MASTER · V1.0",
+    "config": {
+      "bit_code": "A8",
+      "role": "M",
+      "function_code": "0",
+      "user_serial": "5",
+      "maker": "MF",
+      "filter_current": "03",
+      "io_connector": "0",
+      "maint_connector": "0",
+      "user_connector": "0",
+      "board_connector": "0",
+      "belt_connector": "0",
+      "lengths": {
+        "io": 500,
+        "maint": 500,
+        "user": 500,
+        "plc": 200,
+        "belt": 110,
+        "board": 110
+      },
+      "revision": "V1.0",
+      "date": "2026-06-26",
+      "notes": "",
+      "preset_id": "su-b-s1",
+      "board_pin_order": "24v-gnd"
+    },
+    "source": {
+      "filename": "CTS-pCOM-A8-M-05-MF-03-000-00-050-050-050-020 (SU).pptx",
+      "slide": 1,
+      "drawing_number": "CTS-pCOM-A8-M-05-MF-03-000-00-050-050-050-020",
+      "revision": "V1.0"
+    },
+    "notes": [
+      "VHL Maker 코드 MF는 이번 기본 사양 코드표에 없으나 원본 도면에 사용된 기존 사례입니다.",
+      "I/O·MAINT·USER·BELT·BOARD 외부 커넥터는 모두 제거 표시 대상입니다.",
+      "코드 0은 최종 커넥터 없음입니다. 길이가 있는 선재와 제거 전 조립·검사용 커넥터는 BOM/그림에 나타날 수 있으며 케이블 없음과 구분합니다.",
+      "같은 파일명의 두 번째 업로드입니다. V1.0(26.06.26)은 IN/OUT 마킹 추가 전 개정입니다."
+    ]
+  },
+  {
+    "id": "su-b-s2",
+    "label": "썬텍 SU · SLAVE · V1.0",
+    "config": {
+      "bit_code": "A8",
+      "role": "S",
+      "function_code": "0",
+      "user_serial": "5",
+      "maker": "MF",
+      "filter_current": "03",
+      "io_connector": "0",
+      "maint_connector": "0",
+      "user_connector": "0",
+      "board_connector": "0",
+      "belt_connector": "0",
+      "lengths": {
+        "io": 200,
+        "maint": 200,
+        "user": 500,
+        "plc": 500,
+        "belt": 110,
+        "board": 110
+      },
+      "revision": "V1.0",
+      "date": "2026-06-26",
+      "notes": "",
+      "preset_id": "su-b-s2",
+      "board_pin_order": "24v-gnd"
+    },
+    "source": {
+      "filename": "CTS-pCOM-A8-M-05-MF-03-000-00-050-050-050-020 (SU).pptx",
+      "slide": 2,
+      "drawing_number": "CTS-pCOM-A8-S-05-MF-03-000-00-020-020-050-050",
+      "revision": "V1.0"
+    },
+    "notes": [
+      "VHL Maker 코드 MF는 이번 기본 사양 코드표에 없으나 원본 도면에 사용된 기존 사례입니다.",
+      "I/O·MAINT·USER·BELT·BOARD 외부 커넥터는 모두 제거 표시 대상입니다.",
+      "코드 0은 최종 커넥터 없음입니다. 길이가 있는 선재와 제거 전 조립·검사용 커넥터는 BOM/그림에 나타날 수 있으며 케이블 없음과 구분합니다.",
+      "같은 파일명의 두 번째 업로드입니다. V1.0(26.06.26)은 IN/OUT 마킹 추가 전 개정입니다.",
+      "제거 전 MAINT의 BOM #8은 ZDE9S D-SUB9이지만 그림·핀표는 SMR 3핀입니다. 검사 전 커넥터 형식은 미확정입니다.",
+      "원본 본문은 SLAVE이나 BOM 열수축튜브 #15는 Marking:MASTER로 표기되어 있습니다."
+    ]
+  },
+  {
+    "id": "su-a-s1",
+    "label": "썬텍 SU · MASTER · V1.1",
+    "config": {
+      "bit_code": "A8",
+      "role": "M",
+      "function_code": "0",
+      "user_serial": "5",
+      "maker": "MF",
+      "filter_current": "03",
+      "io_connector": "0",
+      "maint_connector": "0",
+      "user_connector": "0",
+      "board_connector": "0",
+      "belt_connector": "0",
+      "lengths": {
+        "io": 500,
+        "maint": 500,
+        "user": 500,
+        "plc": 200,
+        "belt": 110,
+        "board": 110
+      },
+      "revision": "V1.1",
+      "date": "2026-09-17",
+      "notes": "",
+      "preset_id": "su-a-s1",
+      "board_pin_order": "24v-gnd"
+    },
+    "source": {
+      "filename": "CTS-pCOM-A8-M-05-MF-03-000-00-050-050-050-020 (SU).pptx",
+      "slide": 1,
+      "drawing_number": "CTS-pCOM-A8-M-05-MF-03-000-00-050-050-050-020",
+      "revision": "V1.1"
+    },
+    "notes": [
+      "VHL Maker 코드 MF는 이번 기본 사양 코드표에 없으나 원본 도면에 사용된 기존 사례입니다.",
+      "I/O·MAINT·USER·BELT·BOARD 외부 커넥터는 모두 제거 표시 대상입니다.",
+      "코드 0은 최종 커넥터 없음입니다. 길이가 있는 선재와 제거 전 조립·검사용 커넥터는 BOM/그림에 나타날 수 있으며 케이블 없음과 구분합니다.",
+      "같은 파일명의 첫 번째 업로드입니다. V1.1(26.09.17)은 IN/OUT 라벨 추가 개정이며 V1.0과 커넥터·핀표·길이는 같습니다."
+    ]
+  },
+  {
+    "id": "su-a-s2",
+    "label": "썬텍 SU · SLAVE · V1.1",
+    "config": {
+      "bit_code": "A8",
+      "role": "S",
+      "function_code": "0",
+      "user_serial": "5",
+      "maker": "MF",
+      "filter_current": "03",
+      "io_connector": "0",
+      "maint_connector": "0",
+      "user_connector": "0",
+      "board_connector": "0",
+      "belt_connector": "0",
+      "lengths": {
+        "io": 200,
+        "maint": 200,
+        "user": 500,
+        "plc": 500,
+        "belt": 110,
+        "board": 110
+      },
+      "revision": "V1.1",
+      "date": "2026-09-17",
+      "notes": "",
+      "preset_id": "su-a-s2",
+      "board_pin_order": "24v-gnd"
+    },
+    "source": {
+      "filename": "CTS-pCOM-A8-M-05-MF-03-000-00-050-050-050-020 (SU).pptx",
+      "slide": 2,
+      "drawing_number": "CTS-pCOM-A8-S-05-MF-03-000-00-020-020-050-050",
+      "revision": "V1.1"
+    },
+    "notes": [
+      "VHL Maker 코드 MF는 이번 기본 사양 코드표에 없으나 원본 도면에 사용된 기존 사례입니다.",
+      "I/O·MAINT·USER·BELT·BOARD 외부 커넥터는 모두 제거 표시 대상입니다.",
+      "코드 0은 최종 커넥터 없음입니다. 길이가 있는 선재와 제거 전 조립·검사용 커넥터는 BOM/그림에 나타날 수 있으며 케이블 없음과 구분합니다.",
+      "같은 파일명의 첫 번째 업로드입니다. V1.1(26.09.17)은 IN/OUT 라벨 추가 개정이며 V1.0과 커넥터·핀표·길이는 같습니다.",
+      "제거 전 MAINT의 BOM #8은 ZDE9S D-SUB9이지만 그림·핀표는 SMR 3핀입니다. 검사 전 커넥터 형식은 미확정입니다.",
+      "원본 본문은 SLAVE이나 BOM 열수축튜브 #15는 Marking:MASTER로 표기되어 있습니다."
+    ]
+  },
+  {
+    "id": "d09-s1",
+    "label": "썬텍 GL · MASTER · V1.0",
+    "config": {
+      "bit_code": "A8",
+      "role": "M",
+      "function_code": "0",
+      "user_serial": "5",
+      "maker": "GL",
+      "filter_current": "06",
+      "io_connector": "0",
+      "maint_connector": "0",
+      "user_connector": "4",
+      "board_connector": "1",
+      "belt_connector": "1",
+      "lengths": {
+        "io": 1000,
+        "maint": 2000,
+        "user": 2000,
+        "plc": 2000,
+        "belt": 110,
+        "board": 110
+      },
+      "revision": "V1.0",
+      "date": "2025-07-03",
+      "notes": "",
+      "preset_id": "d09-s1",
+      "board_pin_order": "24v-gnd"
+    },
+    "source": {
+      "filename": "썬텍_GL_pCOM-8BIT-6A 도면_0703.pptx",
+      "slide": 1,
+      "drawing_number": "CTS-pCOM-A8-M-05-GL-06-004-11-100-200-200-200",
+      "revision": "V1.0"
+    },
+    "notes": [
+      "VHL Maker 코드 GL는 이번 기본 사양 코드표에 없으나 원본 도면에 사용된 기존 사례입니다.",
+      "900mm를 초과하는 길이는 기본 사양의 일반 범위를 벗어나지만 이 원본 도면에 기재된 길이입니다.",
+      "원문은 검사 후 I/O·MAINT 커넥터 제거를 지시합니다. USER D-SUB 및 전원 양끝은 유지됩니다.",
+      "코드 0은 최종 커넥터 없음입니다. 길이가 있는 선재와 제거 전 조립·검사용 커넥터는 BOM/그림에 나타날 수 있으며 케이블 없음과 구분합니다."
+    ]
+  },
+  {
+    "id": "d09-s2",
+    "label": "썬텍 GL · SLAVE · V1.0",
+    "config": {
+      "bit_code": "A8",
+      "role": "S",
+      "function_code": "0",
+      "user_serial": "5",
+      "maker": "GL",
+      "filter_current": "06",
+      "io_connector": "0",
+      "maint_connector": "0",
+      "user_connector": "4",
+      "board_connector": "1",
+      "belt_connector": "1",
+      "lengths": {
+        "io": 200,
+        "maint": 200,
+        "user": 200,
+        "plc": 200,
+        "belt": 110,
+        "board": 110
+      },
+      "revision": "V1.0",
+      "date": "2025-07-03",
+      "notes": "",
+      "preset_id": "d09-s2",
+      "board_pin_order": "24v-gnd"
+    },
+    "source": {
+      "filename": "썬텍_GL_pCOM-8BIT-6A 도면_0703.pptx",
+      "slide": 2,
+      "drawing_number": "CTS-pCOM-A8-S-05-GL-06-004-11-020-020-020-020",
+      "revision": "V1.0"
+    },
+    "notes": [
+      "VHL Maker 코드 GL는 이번 기본 사양 코드표에 없으나 원본 도면에 사용된 기존 사례입니다.",
+      "원문은 검사 후 I/O·MAINT 커넥터 제거를 지시합니다. USER D-SUB 및 전원 양끝은 유지됩니다.",
+      "코드 0은 최종 커넥터 없음입니다. 길이가 있는 선재와 제거 전 조립·검사용 커넥터는 BOM/그림에 나타날 수 있으며 케이블 없음과 구분합니다."
+    ]
+  },
+  {
+    "id": "d10-s1",
+    "label": "썬텍 LW · MASTER · V1.0",
+    "config": {
+      "bit_code": "A8",
+      "role": "M",
+      "function_code": "0",
+      "user_serial": "5",
+      "maker": "LW",
+      "filter_current": "06",
+      "io_connector": "0",
+      "maint_connector": "0",
+      "user_connector": "0",
+      "board_connector": "1",
+      "belt_connector": "1",
+      "lengths": {
+        "io": 1000,
+        "maint": 1000,
+        "user": 1000,
+        "plc": 200,
+        "belt": 110,
+        "board": 110
+      },
+      "revision": "V1.0",
+      "date": "2026-04-28",
+      "notes": "",
+      "preset_id": "d10-s1",
+      "board_pin_order": "24v-gnd"
+    },
+    "source": {
+      "filename": "썬텍_pCOM-LW 케이블 도면_0428.pptx",
+      "slide": 1,
+      "drawing_number": "CTS-pCOM-A8-M-05-LW-06-000-11-100-100-100-020",
+      "revision": "V1.0"
+    },
+    "notes": [
+      "VHL Maker 코드 LW는 이번 기본 사양 코드표에 없으나 원본 도면에 사용된 기존 사례입니다.",
+      "900mm를 초과하는 길이는 기본 사양의 일반 범위를 벗어나지만 이 원본 도면에 기재된 길이입니다.",
+      "원문은 검사 후 I/O·MAINT·USER 커넥터 제거를 지시합니다. 전원 양끝은 유지됩니다.",
+      "코드 0은 최종 커넥터 없음입니다. 길이가 있는 선재와 제거 전 조립·검사용 커넥터는 BOM/그림에 나타날 수 있으며 케이블 없음과 구분합니다."
+    ]
+  },
+  {
+    "id": "d10-s2",
+    "label": "썬텍 LW · SLAVE · V1.0",
+    "config": {
+      "bit_code": "A8",
+      "role": "S",
+      "function_code": "0",
+      "user_serial": "5",
+      "maker": "LW",
+      "filter_current": "06",
+      "io_connector": "F",
+      "maint_connector": "0",
+      "user_connector": "0",
+      "board_connector": "1",
+      "belt_connector": "1",
+      "lengths": {
+        "io": 350,
+        "maint": 500,
+        "user": 500,
+        "plc": 100,
+        "belt": 110,
+        "board": 110
+      },
+      "revision": "V1.0",
+      "date": "2026-04-28",
+      "notes": "",
+      "preset_id": "d10-s2",
+      "board_pin_order": "gnd-24v"
+    },
+    "source": {
+      "filename": "썬텍_pCOM-LW 케이블 도면_0428.pptx",
+      "slide": 2,
+      "drawing_number": "CTS-pCOM-A8-S-05-LW-06-F00-11-035-050-050-010",
+      "revision": "V1.0"
+    },
+    "notes": [
+      "VHL Maker 코드 LW는 이번 기본 사양 코드표에 없으나 원본 도면에 사용된 기존 사례입니다.",
+      "원문은 검사 후 MAINT·USER 커넥터 제거를 지시합니다. 주 26핀 및 전원 양끝은 유지됩니다.",
+      "코드 0은 최종 커넥터 없음입니다. 길이가 있는 선재와 제거 전 조립·검사용 커넥터는 BOM/그림에 나타날 수 있으며 케이블 없음과 구분합니다.",
+      "I/O 코드 F 및 그림은 MOLEX 501646-2600이지만 BOM은 HIROSE HIF6-26D-1.27R로 표기되어 있습니다.",
+      "BOARD 전원 핀은 1=GND(검), 2=24V(흰)입니다. 일반 1=24V/2=GND 규칙으로 바꾸지 않습니다.",
+      "원본 터미널 T-4/T-5의 대상번호 10/11과 전원 하우징 번호 9/10이 어긋납니다. ⑤의 GND/RX2/TX2에는 다른 26핀 SLAVE와 달리 NC 표기가 없습니다."
+    ]
+  }
+]

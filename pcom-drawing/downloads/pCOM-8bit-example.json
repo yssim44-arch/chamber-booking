@@ -1,0 +1,28 @@
+{
+  "config": {
+    "bit_code": "A8",
+    "role": "M",
+    "function_code": "0",
+    "user_serial": "2",
+    "maker": "SE",
+    "filter_current": "03",
+    "io_connector": "2",
+    "maint_connector": "2",
+    "user_connector": "2",
+    "board_connector": "1",
+    "belt_connector": "1",
+    "board_pin_order": "24v-gnd",
+    "lengths": {
+      "io": 400,
+      "maint": 100,
+      "user": 300,
+      "plc": 300,
+      "belt": 110,
+      "board": 110
+    },
+    "revision": "V1.0",
+    "date": "2026-10-28",
+    "notes": "",
+    "preset_id": "spec-example"
+  }
+}
